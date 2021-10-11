@@ -1,0 +1,8 @@
+# modify and rename to configuration.yaml !
+database:
+  server: 192.168.0.10
+  port: 27017
+  user: myuser
+  password: mypassword
+  database: SmartDeviceHub
+  collection: device_g470
