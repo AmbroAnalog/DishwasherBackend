@@ -23,6 +23,12 @@ def insert_run_state():
         current_app.logger.error("ERROR in request body")
     return 'OK'
 
+@insert_bp.route('/is_alive/',  methods=['POST', 'GET'])
+def received_last_alive():
+    req_data = request.get_json()
+    if 'session_id' and 'device_identifier' in req_data:
+        update_last_alive(req_data)
+    return 'OK'
 
 def update_last_alive(process_data):
     device_identifier = process_data['device_identifier']
