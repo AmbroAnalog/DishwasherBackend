@@ -5,6 +5,7 @@ from flask import Flask
 from flask_socketio import SocketIO, emit, send
 
 from insert import insert_bp
+from requests import request_bp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'TestKey'
@@ -13,6 +14,7 @@ socketio = SocketIO(app, cors_allowd_origins='*')
 socketio_clients = 0
 
 app.register_blueprint(insert_bp, url_prefix='/insert')
+app.register_blueprint(request_bp, url_prefix='/request')
 
 
 def load_config():
