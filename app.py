@@ -3,12 +3,16 @@ import os
 import pymongo
 from flask import Flask
 from flask_socketio import SocketIO, emit, send
+from flask_cors import CORS, cross_origin
+# https://stackoverflow.com/questions/25594893/how-to-enable-cors-in-flask
 
 from insert import insert_bp
 from requests import request_bp
 
 app = Flask(__name__)
+cors = CORS(app)
 app.config['SECRET_KEY'] = 'TestKey'
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 socketio = SocketIO(app, cors_allowd_origins='*')
 socketio_clients = 0
