@@ -10,12 +10,13 @@ from insert import insert_bp
 from requests import request_bp
 
 app = Flask(__name__)
-cors = CORS(app)
 app.config['SECRET_KEY'] = 'TestKey'
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-socketio = SocketIO(app, cors_allowd_origins='*')
+socketio = SocketIO(app, cors_allowed_origins='*')
 socketio_clients = 0
+
+CORS(app)
 
 app.register_blueprint(insert_bp, url_prefix='/insert')
 app.register_blueprint(request_bp, url_prefix='/request')
@@ -38,15 +39,10 @@ def load_config():
     app.config['mongo_col'] = mongo_col
 
 
-@app.route('/api/socket')
-def index():
-    print('route socket init')
-    print('What to do her???')
-
-
 @socketio.on('connect')
 def test_connect():
     app.config['connected_clients'] += 1
+    socketio.emit('my response', {'data': 'Connected'})
     print('Client connected test')
 
 
@@ -55,21 +51,17 @@ def handle_message(msg):
     print('received message: ' + msg)
 
 
-@socketio.on('new-message-s')
-def send_data():
-    print('send_data???')
-    pass
-
-
 @socketio.on('disconnect')
 def test_disconnect():
     app.config['connected_clients'] -= 1
     print('Client disconnect')
 
 
-if __name__ == "__main__":
-    load_config()
-    app.config['connected_clients'] = 0
-    app.config['socketio'] = socketio
-    # app.run(debug=True, host='45.156.84.32')
-    socketio.run(app, host='45.156.84.32')
+
+load_config()
+app.config['connected_clients'] = 0
+app.config['socketio'] = socketio
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)
+

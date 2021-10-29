@@ -1,5 +1,7 @@
 import time
 import json
+
+import pymongo
 from bson.json_util import dumps
 from bson import json_util
 from bson.objectid import ObjectId
@@ -9,6 +11,7 @@ from flask import Response
 from flask import Blueprint
 from flask import current_app
 from flask import request
+from flask_cors import CORS, cross_origin
 
 request_bp = Blueprint('requests', __name__)
 
@@ -37,7 +40,7 @@ def request_device_list():
 def request_run_list():
     db = current_app.config['mongo_col']
 
-    runs = db.find({'session_id': {'$exists': True}}).sort('session_id')
+    runs = db.find({'session_id': {'$exists': True}}).sort('session_id', pymongo.DESCENDING)
 
     run_list = []
     for run_obj in runs:
