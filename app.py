@@ -46,11 +46,6 @@ def test_connect():
     print('Client connected test')
 
 
-@socketio.on('new-message')
-def handle_message(msg):
-    print('received message: ' + msg)
-
-
 @socketio.on('disconnect')
 def test_disconnect():
     app.config['connected_clients'] -= 1

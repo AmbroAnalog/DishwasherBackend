@@ -1,16 +1,12 @@
-import time
 import json
 
 import pymongo
-from bson.json_util import dumps
-from bson import json_util
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 
 from flask import Response
 from flask import Blueprint
 from flask import current_app
-from flask import request
 from flask_cors import CORS, cross_origin
 
 request_bp = Blueprint('requests', __name__)
@@ -21,7 +17,7 @@ request_bp = Blueprint('requests', __name__)
 def request_device_list():
     db = current_app.config['mongo_col']
 
-    devices = db.find({'unique_device_identifier': {'$exists': True}})
+    devices = db.find({'unique_device_identifieget_latest_run_by_devicer': {'$exists': True}})
 
     device_list = []
     for device_obj in devices:
@@ -81,6 +77,18 @@ def request_latest_run_by_device(device_oid):
         else:
             run[key] = value
 
-    return json.dumps({'device': device, 'last_run': run})
+    return json.dumps({'device': device, 'last_run': run, 'temperature_series': get_temperature_series(device['unique_device_identifier'], db)})
     # return Response(json.dumps({'device': device_obj, 'last_run': run}, default=json_util.default),
     #             mimetype='application/json')
+
+
+def get_temperature_series(device_identifier, db):
+    temp_series = db.find_one({'unique_device_identifier': device_identifier, 'series_name': 'temperature_series'})
+    data = {}
+    for key, value in temp_series.items():
+        if key == '_id':
+            data['document_id'] = str(value)
+        else:
+            data[key] = value
+
+    return data
