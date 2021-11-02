@@ -53,12 +53,15 @@ def record_temperature_series(process_data):
         data = {
             'series_name': 'temperature_series',
             'unique_device_identifier': device_identifier,
+            'last_updated': int(time.time()),
             'session_id': int(session_id),
             'series': [ data_set ]
         }
         db.insert_one(data)
-    else:
-        db.find_one_and_update({'unique_device_identifier': device_identifier, 'series_name': 'temperature_series'},
+        current_app.config['socketio'].emit('temperature_series', data)
+    elif (int(time.time()) - temp_series['last_updated']) > 60:
+        db.find_one_and_update({'unique_device_identifier': device_identifier, 'series_name': 'temperature_series',
+                                'last_updated': int(time.time())},
                                {'$push': {'series': data_set}})
         data = {}
         for key, value in temp_series.items():
@@ -66,8 +69,7 @@ def record_temperature_series(process_data):
                 data['document_id'] = str(value)
             else:
                 data[key] = value
-
-    current_app.config['socketio'].emit('temperature_series', data)
+        current_app.config['socketio'].emit('temperature_series', data)
 
 
 def update_last_alive(process_data):

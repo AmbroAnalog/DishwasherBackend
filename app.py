@@ -40,17 +40,16 @@ def load_config():
 
 
 @socketio.on('connect')
-def test_connect():
+def connect_handler():
     app.config['connected_clients'] += 1
     socketio.emit('my response', {'data': 'Connected'})
-    print('Client connected test')
+    print('client number {} connected'.format(app.config['connected_clients']))
 
 
 @socketio.on('disconnect')
-def test_disconnect():
+def disconnect_handler():
     app.config['connected_clients'] -= 1
-    print('Client disconnect')
-
+    print('client disconnect...')
 
 
 load_config()

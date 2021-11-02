@@ -17,7 +17,7 @@ request_bp = Blueprint('requests', __name__)
 def request_device_list():
     db = current_app.config['mongo_col']
 
-    devices = db.find({'unique_device_identifieget_latest_run_by_devicer': {'$exists': True}})
+    devices = db.find({'series_name': 'device'})
 
     device_list = []
     for device_obj in devices:
@@ -31,12 +31,13 @@ def request_device_list():
 
     return json.dumps(device_list)
 
+
 @request_bp.route('/get_all_runs/', methods=['GET'])
 @cross_origin()
 def request_run_list():
     db = current_app.config['mongo_col']
 
-    runs = db.find({'session_id': {'$exists': True}}).sort('session_id', pymongo.DESCENDING)
+    runs = db.find({'program_runtime': {'$exists': True}}).sort('session_id', pymongo.DESCENDING)
 
     run_list = []
     for run_obj in runs:
@@ -49,6 +50,7 @@ def request_run_list():
         run_list.append(run)
 
     return json.dumps(run_list)
+
 
 @request_bp.route('/get_latest_run_by_device/<device_oid>', methods=['GET'])
 @cross_origin()
@@ -85,6 +87,8 @@ def request_latest_run_by_device(device_oid):
 def get_temperature_series(device_identifier, db):
     temp_series = db.find_one({'unique_device_identifier': device_identifier, 'series_name': 'temperature_series'})
     data = {}
+    if temp_series is None:
+        return data
     for key, value in temp_series.items():
         if key == '_id':
             data['document_id'] = str(value)
