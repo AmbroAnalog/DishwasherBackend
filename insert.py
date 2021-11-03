@@ -38,6 +38,9 @@ def record_temperature_series(process_data):
     temperature = process_data['machine_temperature']
     device_identifier = process_data['device_identifier']
     session_id = process_data['session_id']
+    if process_data['program_time_start'] is None:
+        # abort record if program not started
+        return
 
     temp_series = db.find_one({'unique_device_identifier': device_identifier, 'series_name': 'temperature_series'})
     if temp_series is not None and int(temp_series['session_id']) != int(session_id):
@@ -60,9 +63,8 @@ def record_temperature_series(process_data):
         db.insert_one(data)
         current_app.config['socketio'].emit('temperature_series', data)
     elif (int(time.time()) - temp_series['last_updated']) > 60:
-        db.find_one_and_update({'unique_device_identifier': device_identifier, 'series_name': 'temperature_series',
-                                'last_updated': int(time.time())},
-                               {'$push': {'series': data_set}})
+        db.find_one_and_update({'unique_device_identifier': device_identifier, 'series_name': 'temperature_series'},
+                               {'$push': {'series': data_set}, '$set': {'last_updated': int(time.time())}})
         data = {}
         for key, value in temp_series.items():
             if key == '_id':
