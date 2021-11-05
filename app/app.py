@@ -22,6 +22,17 @@ app.register_blueprint(insert_bp, url_prefix='/insert')
 app.register_blueprint(request_bp, url_prefix='/request')
 
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    db = app.config['mongo_col']
+    count = db.count()
+
+    if count and count > 0:
+        return { 'success': True, 'database_collection_count': count}
+    else:
+        return { 'success': False }
+
+
 def load_config():
     folder = os.path.dirname(os.path.realpath(__file__))
     with open(folder + '/configuration.yaml', 'r') as file:
