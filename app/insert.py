@@ -38,8 +38,8 @@ def record_temperature_series(process_data):
     temperature = process_data['machine_temperature']
     device_identifier = process_data['device_identifier']
     session_id = process_data['session_id']
-    if process_data['program_time_start'] is None:
-        # abort record if program not started
+    if process_data['program_time_start'] is None and process_data['program_time_end'] is not None:
+        # abort record if program not started or already ended
         return
 
     temp_series = db.find_one({'unique_device_identifier': device_identifier, 'series_name': 'temperature_series'})
@@ -82,6 +82,7 @@ def update_last_alive(process_data):
         'unique_device_identifier': device_identifier,
         'last_alive': int(time.time()),
         'last_session_id': process_data['session_id'],
+        'series_name': 'device'
     }
     obj = db.find_one({'unique_device_identifier': device_identifier})
     if obj is None:
