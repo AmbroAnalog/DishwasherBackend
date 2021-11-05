@@ -73,11 +73,12 @@ def request_latest_run_by_device(device_oid):
         else:
             device[key] = value
     run = {}
-    for key, value in run_obj.items():
-        if key == '_id':
-            run['document_id'] = str(value)
-        else:
-            run[key] = value
+    if run_obj is not None:
+        for key, value in run_obj.items():
+            if key == '_id':
+                run['document_id'] = str(value)
+            else:
+                run[key] = value
 
     return json.dumps({'device': device, 'last_run': run, 'temperature_series': get_temperature_series(device['unique_device_identifier'], db)})
     # return Response(json.dumps({'device': device_obj, 'last_run': run}, default=json_util.default),
