@@ -5,22 +5,22 @@ Backend RESTful API application for the smart dishwasher project. API implemente
 
 ## Mode of operation
 ```
-                            ┌────────────────────────┐
-                            │ Docker Container       │
-                            │  ┌───────┐             │
-Smart Dishwasher project    │  │MongoDB│             │
-                            │  └──▲────┘             │
-                            │     │                  │
-   ┌──────────────┐ REST-API│  ┌──▼──────────────┐   │
-   │ DishwasherOS ├─────────┼─►│DishwasherBackend│   │
-   └────┬───▲─────┘         │  └────┬─▲──────────┘   │
-        │   │               │       │ │ REST-API     │
-        │   │               │       │ │ Socket.IO    │
-   ┌────▼───┴─────┐         │  ┌────▼─┴────────────┐ │
-   │  Dishwasher  │         │  │DishwasherFrontend │ │
-   └──────────────┘         │  └───────────────────┘ │
-                            │                        │
-                            └────────────────────────┘
+                               ┌────────────────────────┐
+smart dishwasher project       │ Docker Container       │
+                               │  ┌───────┐             │
+                               │  │MongoDB│             │
+                               │  └──▲────┘             │
+                               │     │                  │
+┌──────────────┐  REST-API     │  ┌──▼──────────────┐   │
+│ DishwasherOS ├───────────────┼─►│DishwasherBackend│   │
+└────┬───▲─────┘               │  └────┬─▲──────────┘   │
+     │   │                     │       │ │ REST-API     │
+     │   │                     │       │ │ Socket.IO    │
+┌────▼───┴─────┐               │  ┌────▼─┴────────────┐ │
+│  Dishwasher  │               │  │DishwasherFrontend │ │
+└──────────────┘               │  └───────────────────┘ │
+                               │                        │
+                               └────────────────────────┘
 ```
 The backend application establishes a RESTful API for the interface between OS and frontend, as well as to the database. A MongoDB is used as persistent data storage.
 
