@@ -25,7 +25,7 @@ app.register_blueprint(request_bp, url_prefix='/request')
 @app.route('/health', methods=['GET'])
 def health_check():
     db = app.config['mongo_col']
-    count = db.count()
+    count = db.count_documents({})
 
     if count and count > 0:
         return { 'success': True, 'database_collection_count': count}
