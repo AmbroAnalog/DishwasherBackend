@@ -93,12 +93,12 @@ def request_program_summary():
             first_pgr_run = run_obj['program_time_start']
 
     program_summary = dict(sorted(program_summary.items()))
-    ret = {}
+    ret = []
     pgr_count = 0
     run_count = 0
     aenergy_summ = 0
     for k, v in program_summary.items():
-        ret[k] = {
+        summary = {
             'program_id': v['program_id'],
             'program_counter': v['program_counter'],
             'program_last_run': v['program_last_run'],
@@ -109,7 +109,8 @@ def request_program_summary():
             'program_aenergy_summ': v['program_aenergy_summ']
         }
         if v['program_aenergy_ct'] > 0:
-            ret[k]['program_aenergy_average'] = float(v['program_aenergy_summ'] / v['program_counter'])
+            summary['program_aenergy_average'] = float(v['program_aenergy_summ'] / v['program_counter'])
+        ret.append(summary)
         pgr_count += 1
         aenergy_summ += v['program_aenergy_summ']
         run_count += v['program_counter']
