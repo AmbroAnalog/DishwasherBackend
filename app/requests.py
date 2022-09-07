@@ -67,17 +67,20 @@ def request_program_summary():
     for run_obj in runs:
         id = run_obj['program_selected_id']
         if id in program_summary:
-            # program already exists
+            # program entry already exists
             program_summary[id]['program_counter'] += 1
             program_summary[id]['program_runtime_list'].append(run_obj['program_runtime'])
             program_summary[id]['program_estimated_summ'] += run_obj['program_estimated_runtime']
             if run_obj['machine_aenergy'] is not None:
                 program_summary[id]['program_aenergy_summ'] += run_obj['machine_aenergy']
                 program_summary[id]['program_aenergy_ct'] += 1
+            if run_obj['program_time_start'] > program_summary[id]['program_last_run']:
+                program_summary[id]['program_time_start'] = run_obj['program_time_start']
         else:
             program_summary[id] = {
                 'program_id': id,
                 'program_counter': 1,
+                'program_last_run': run_obj['program_time_start'],
                 'program_runtime_list': [run_obj['program_runtime']],
                 'program_estimated_summ': run_obj['program_estimated_runtime']}
             if run_obj['machine_aenergy'] is not None:
@@ -98,6 +101,7 @@ def request_program_summary():
         ret[k] = {
             'program_id': v['program_id'],
             'program_counter': v['program_counter'],
+            'program_last_run': v['program_last_run'],
             'program_runtime_average': statistics.fmean(v['program_runtime_list']),
             'program_runtime_stdev': statistics.stdev(v['program_runtime_list']) if len(v['program_runtime_list']) > 1 else 0.0,
             'program_estimated_average': float(v['program_estimated_summ'] / v['program_counter']),
