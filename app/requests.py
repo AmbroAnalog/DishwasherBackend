@@ -2,6 +2,7 @@ from audioop import cross
 from crypt import methods
 import json
 import statistics
+from datetime import datetime
 
 import pymongo
 from bson.objectid import ObjectId
@@ -93,12 +94,12 @@ def request_program_summary():
             first_pgr_run = run_obj['program_time_start']
 
     program_summary = dict(sorted(program_summary.items()))
-    ret = []
+    ret = {}
     pgr_count = 0
     run_count = 0
     aenergy_summ = 0
     for k, v in program_summary.items():
-        summary = {
+        ret[k] = {
             'program_id': v['program_id'],
             'program_counter': v['program_counter'],
             'program_last_run': v['program_last_run'],
@@ -109,8 +110,7 @@ def request_program_summary():
             'program_aenergy_summ': v['program_aenergy_summ']
         }
         if v['program_aenergy_ct'] > 0:
-            summary['program_aenergy_average'] = float(v['program_aenergy_summ'] / v['program_counter'])
-        ret.append(summary)
+            ret[k]['program_aenergy_average'] = float(v['program_aenergy_summ'] / v['program_counter'])
         pgr_count += 1
         aenergy_summ += v['program_aenergy_summ']
         run_count += v['program_counter']
@@ -121,6 +121,65 @@ def request_program_summary():
         'aenergy_summ': aenergy_summ, 
         'firstrun_time': first_pgr_run,
         'program_summary': ret})
+
+
+@request_bp.route('/get_time_summary/', methods=['GET'])
+@cross_origin()
+def request_time_summary():
+    db = current_app.config['mongo_col']
+
+    runs = db.find({'program_time_end': {'$exists': True, '$type': 'int'}}).sort('session_id', pymongo.DESCENDING)
+
+    first_pgr_run = 222222222222
+    for run_obj in runs:
+        if run_obj['program_time_start'] < first_pgr_run:
+            first_pgr_run = run_obj['program_time_start']
+    first_datetime = datetime.fromtimestamp(first_pgr_run)
+    first_year = int(first_datetime.strftime("%Y"))
+    first_month = int(first_datetime.strftime("%-m"))
+    now_year = int(datetime.now().strftime("%Y"))
+    now_month = int(datetime.now().strftime("%-m"))
+    # first_year = 2020
+
+    monthly_summary = {}
+    # create years and months template
+    for y in range(first_year, now_year + 1):
+        m_start = first_month if y == first_year else 1
+        m_end = now_month if y == now_year else 12
+        monthly_summary[y] = {}
+        for m in range(m_start, m_end + 1):
+            sort_date = "{}.{}.2 04:22".format(y, m)
+            monthly_summary[y][m] = {
+                'timestamp': datetime.timestamp(datetime.strptime(sort_date, '%Y.%m.%d %H:%M')),
+                'year_number': y,
+                'month_number': m,
+                'monthly_counter': 0,
+                'monthly_aenergy': 0.0}       
+
+    runs.rewind()
+    for run_obj in runs:
+        time = datetime.fromtimestamp(run_obj['program_time_start'])
+        year = int(time.strftime("%Y"))
+        month = int(time.strftime("%-m"))
+
+        monthly_summary[year][month]['monthly_counter'] += 1
+        monthly_summary[year][month]['monthly_aenergy'] += run_obj['machine_aenergy']
+
+    summary_list = []
+    for y, months in monthly_summary.items():
+        monthly_summary = sorted(list(months.values()), key=lambda d: d['timestamp'], reverse=True)
+        summ_count = 0
+        for m in monthly_summary:
+            summ_count += m['monthly_counter']
+        y_obj = {
+            'year_number': y,
+            'year_program_counter': summ_count,
+            'month_count': len(monthly_summary),
+            'monthly_summary': monthly_summary}
+        summary_list.append(y_obj)
+        # summary_list.extend(ye.values())
+
+    return json.dumps(sorted(summary_list, key=lambda d: d['year_number'], reverse=True))
 
 
 @request_bp.route('/get_latest_run_by_device/<device_oid>', methods=['GET'])
@@ -152,8 +211,6 @@ def request_latest_run_by_device(device_oid):
                 run[key] = value
 
     return json.dumps({'device': device, 'last_run': run, 'temperature_series': get_temperature_series(device['unique_device_identifier'], db)})
-    # return Response(json.dumps({'device': device_obj, 'last_run': run}, default=json_util.default),
-    #             mimetype='application/json')
 
 
 def get_temperature_series(device_identifier, db):
