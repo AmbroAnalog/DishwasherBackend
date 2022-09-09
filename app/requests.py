@@ -33,7 +33,7 @@ def request_device_list():
                 device[key] = value
         device_list.append(device)
 
-    return json.dumps(device_list)
+    return device_list
 
 
 @request_bp.route('/get_all_runs/', methods=['GET'])
@@ -53,7 +53,7 @@ def request_run_list():
                 run[key] = value
         run_list.append(run)
 
-    return json.dumps(run_list)
+    return run_list
 
 
 @request_bp.route('/get_program_summary/', methods=['GET'])
@@ -94,12 +94,12 @@ def request_program_summary():
             first_pgr_run = run_obj['program_time_start']
 
     program_summary = dict(sorted(program_summary.items()))
-    ret = {}
+    summary_list = []
     pgr_count = 0
     run_count = 0
     aenergy_summ = 0
     for k, v in program_summary.items():
-        ret[k] = {
+        ret = {
             'program_id': v['program_id'],
             'program_counter': v['program_counter'],
             'program_last_run': v['program_last_run'],
@@ -110,17 +110,18 @@ def request_program_summary():
             'program_aenergy_summ': v['program_aenergy_summ']
         }
         if v['program_aenergy_ct'] > 0:
-            ret[k]['program_aenergy_average'] = float(v['program_aenergy_summ'] / v['program_counter'])
+            ret['program_aenergy_average'] = float(v['program_aenergy_summ'] / v['program_counter'])
         pgr_count += 1
         aenergy_summ += v['program_aenergy_summ']
         run_count += v['program_counter']
+        summary_list.append(ret)
     
-    return json.dumps({
+    return {
         'count_programs': pgr_count, 
         'count_runs': run_count,
         'aenergy_summ': aenergy_summ, 
         'firstrun_time': first_pgr_run,
-        'program_summary': ret})
+        'program_summary': summary_list}
 
 
 @request_bp.route('/get_time_summary/', methods=['GET'])
@@ -179,7 +180,8 @@ def request_time_summary():
         summary_list.append(y_obj)
         # summary_list.extend(ye.values())
 
-    return json.dumps(sorted(summary_list, key=lambda d: d['year_number'], reverse=True))
+    # TODO: the '[0]' in the return statment is only a hotfix to not return the data in a list with only one Object
+    return sorted(summary_list, key=lambda d: d['year_number'], reverse=True)[0]
 
 
 @request_bp.route('/get_latest_run_by_device/<device_oid>', methods=['GET'])
@@ -210,7 +212,10 @@ def request_latest_run_by_device(device_oid):
             else:
                 run[key] = value
 
-    return json.dumps({'device': device, 'last_run': run, 'temperature_series': get_temperature_series(device['unique_device_identifier'], db)})
+    return {
+        'device': device, 
+        'last_run': run, 
+        'temperature_series': get_temperature_series(device['unique_device_identifier'], db)}
 
 
 def get_temperature_series(device_identifier, db):
