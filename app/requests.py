@@ -11,6 +11,7 @@ from bson.errors import InvalidId
 from flask import Response
 from flask import Blueprint
 from flask import current_app
+from flask import jsonify
 from flask_cors import CORS, cross_origin
 
 request_bp = Blueprint('requests', __name__)
@@ -33,7 +34,7 @@ def request_device_list():
                 device[key] = value
         device_list.append(device)
 
-    return device_list
+    return jsonify(device_list)
 
 
 @request_bp.route('/get_all_runs/', methods=['GET'])
@@ -53,7 +54,7 @@ def request_run_list():
                 run[key] = value
         run_list.append(run)
 
-    return run_list
+    return jsonify(run_list)
 
 
 @request_bp.route('/get_program_summary/', methods=['GET'])
@@ -181,7 +182,7 @@ def request_time_summary():
         # summary_list.extend(ye.values())
 
     # TODO: the '[0]' in the return statment is only a hotfix to not return the data in a list with only one Object
-    return sorted(summary_list, key=lambda d: d['year_number'], reverse=True)[0]
+    return jsonify(sorted(summary_list, key=lambda d: d['year_number'], reverse=True))
 
 
 @request_bp.route('/get_latest_run_by_device/<device_oid>', methods=['GET'])
