@@ -175,11 +175,14 @@ def request_time_summary():
     for y, months in monthly_summary.items():
         monthly_summary = sorted(list(months.values()), key=lambda d: d['timestamp'], reverse=True)
         summ_count = 0
+        summ_aenergy = 0.0
         for m in monthly_summary:
             summ_count += m['monthly_counter']
+            summ_aenergy += m['monthly_aenergy']
         y_obj = {
             'year_number': y,
             'year_program_counter': summ_count,
+            'year_program_aenergy': summ_aenergy,
             'month_count': len(monthly_summary),
             'monthly_summary': monthly_summary}
         summary_list.append(y_obj)
