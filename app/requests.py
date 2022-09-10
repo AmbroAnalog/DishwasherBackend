@@ -66,6 +66,7 @@ def request_program_summary():
 
     program_summary = {}
     first_pgr_run = 222222222222
+    counter_hight = 0
     for run_obj in runs:
         id = run_obj['program_selected_id']
         if id in program_summary:
@@ -93,6 +94,8 @@ def request_program_summary():
                 program_summary[id]['program_aenergy_ct'] = 0
         if run_obj['program_time_start'] < first_pgr_run:
             first_pgr_run = run_obj['program_time_start']
+        if program_summary[id]['program_counter'] > counter_hight:
+            counter_hight = program_summary[id]['program_counter']
 
     program_summary = dict(sorted(program_summary.items()))
     summary_list = []
@@ -104,6 +107,7 @@ def request_program_summary():
             'program_id': v['program_id'],
             'program_counter': v['program_counter'],
             'program_last_run': v['program_last_run'],
+            'program_is_king': True if v['program_counter'] == counter_hight else False,
             'program_runtime_average': statistics.fmean(v['program_runtime_list']),
             'program_runtime_stdev': statistics.stdev(v['program_runtime_list']) if len(v['program_runtime_list']) > 1 else 0.0,
             'program_estimated_average': float(v['program_estimated_summ'] / v['program_counter']),
