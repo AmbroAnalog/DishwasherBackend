@@ -2,12 +2,16 @@ import yaml
 import os
 import pymongo
 from flask import Flask
-from flask_socketio import SocketIO, emit, send
+#from flask_socketio import SocketIO, emit, send
+from flask_socketio import SocketIO
+from flask_socketio import emit
+from flask_socketio import send
 from flask_cors import CORS, cross_origin
 # https://stackoverflow.com/questions/25594893/how-to-enable-cors-in-flask
 
-from insert import insert_bp
-from requests import request_bp
+from bp_insert import insert_bp
+from bp_requests import request_bp
+from bp_notification import notify_bp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'TestKey'
@@ -16,11 +20,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 socketio = SocketIO(app, cors_allowed_origins='*')
 socketio_clients = 0
 
-CORS(app)
-
 app.register_blueprint(insert_bp, url_prefix='/insert')
 app.register_blueprint(request_bp, url_prefix='/request')
+app.register_blueprint(notify_bp, url_prefix='/notify')
 
+cors = CORS(app, resources={r"/*":{"origins":"*"}})
 
 @app.route('/health', methods=['GET'])
 def health_check():

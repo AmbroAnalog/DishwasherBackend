@@ -2,3 +2,7 @@ __pycache__/
 .directory/
 .idea/
 app/configuration.yaml
+
+*.pem
+private_key.txt
+public_key.txt
