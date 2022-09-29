@@ -24,13 +24,27 @@ VAPID_CLAIMS = {
     "sub": "mailto:zborowska40@gmail.com"
 }
 
-def send_web_push(subscription_information, msg):
-    return webpush(
-        subscription_info=subscription_information,
-        data=msg,
-        vapid_private_key=VAPID_PRIVATE_KEY,
-        vapid_claims=VAPID_CLAIMS
-    )
+def _notify_all_subscribers(title, body, icon = None):
+    sended = 0
+    icon_path = "assets/{}".format(icon) if icon is not None else ""
+    for sub in USER_SUBSCRIPTION_STORAGE:
+        try:
+            webpush(
+                subscription_info=sub.subscription_info_json(),
+                data=json.dumps({
+                    "notification": {
+                        "title": title,
+                        "body": body,
+                        "icon": icon_path,
+                    }
+                }),
+                vapid_private_key=VAPID_PRIVATE_KEY,
+                vapid_claims=VAPID_CLAIMS
+            )
+            count += 1
+        except WebPushException as ex:
+            pass
+    print("{} notification(s) sent".format(sended))
 
 @notify_bp.route("/subscription/", methods=["GET", "POST"])
 def subscription():
@@ -53,29 +67,8 @@ def subscription():
 
     return Response(status=201, mimetype="application/json")
 
-@notify_bp.route("/push_v1/",methods=['POST'])
-def push_v1():
-    message = "Push Test v1"
-    print("is_json",request.is_json)
-
-    if not request.json or not request.json.get('sub_token'):
-        return jsonify({'failed':1})
-
-
-    print("request.json",request.json)
-
-    token = request.json.get('sub_token')
-    try:
-        token = json.loads(token)
-        send_web_push(token, message)
-        return jsonify({'success':1})
-    except Exception as e:
-        print("error",e)
-        return jsonify({'failed':str(e)})
-
 @notify_bp.route("/push_v2/",methods=['GET'])
 def push_v2():
-    from pywebpush import webpush, WebPushException
     count = 0
     for sub in USER_SUBSCRIPTION_STORAGE:
         try:
@@ -109,3 +102,17 @@ def push_v2():
     print("{} notification(s) sent".format(count))
     # return "{} notification(s) sent".format(count)
     return jsonify({'notification(s) sent': count})
+
+def broadcast_notification_action_start(program_estimated_runtime):
+    _notify_all_subscribers(
+        "Neues Programm gestartet...",
+        "{:.1f} minuten erwartete Laufzeit".format(program_estimated_runtime / 60),
+        "dishwasher_action_start.png"
+    )
+
+def broadcast_notification_action_finish(program_runtime):
+    _notify_all_subscribers(
+        "Spülprogramm beendet!",
+        "Programm nach {:.0f} minuten erfolgreich beendet".format(program_runtime / 60),
+        "dishwasher_action_finish.png"
+    )

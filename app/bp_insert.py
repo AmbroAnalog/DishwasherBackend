@@ -4,6 +4,8 @@ from flask import Blueprint
 from flask import current_app
 from flask import request
 
+from bp_notification import broadcast_notification_action_start, broadcast_notification_action_finish
+
 insert_bp = Blueprint('insert', __name__)
 
 
@@ -15,7 +17,12 @@ def insert_run_state():
         obj = db.find_one({'session_id': req_data['session_id']})
         if obj is None:
             db.insert_one(req_data)
+            # insert a new entry --> raise notification
+            broadcast_notification_action_start(req_data['program_estimated_runtime'])
         else:
+            if obj['program_time_end'] is None and req_data['program_time_end'] is not None:
+                # complete one program run --> raise notification
+                broadcast_notification_action_finish(req_data['program_runtime'])
             db.replace_one({"_id": obj['_id']}, req_data)
         update_last_alive(req_data)
         current_app.config['socketio'].emit('device-data', req_data)
