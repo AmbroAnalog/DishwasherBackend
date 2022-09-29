@@ -13,6 +13,8 @@ from bp_insert import insert_bp
 from bp_requests import request_bp
 from bp_notification import notify_bp
 
+from subscription_db import *
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'TestKey'
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -30,9 +32,10 @@ cors = CORS(app, resources={r"/*":{"origins":"*"}})
 def health_check():
     db = app.config['mongo_col']
     count = db.count_documents({})
+    notify_db_count = len(USER_SUBSCRIPTION_STORAGE)
 
     if count and count > 0:
-        return { 'success': True, 'database_collection_count': count}
+        return { 'success': True, 'database_collection_count': count, 'database_notification_count': notify_db_count}
     else:
         return { 'success': False }
 
