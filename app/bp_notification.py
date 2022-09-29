@@ -41,7 +41,7 @@ def _notify_all_subscribers(title, body, icon = None):
                 vapid_private_key=VAPID_PRIVATE_KEY,
                 vapid_claims=VAPID_CLAIMS
             )
-            count += 1
+            sended += 1
         except WebPushException as ex:
             pass
     print("{} notification(s) sent".format(sended))
@@ -106,7 +106,7 @@ def push_v2():
 def broadcast_notification_action_start(program_estimated_runtime):
     _notify_all_subscribers(
         "Neues Programm gestartet...",
-        "{:.1f} minuten erwartete Laufzeit".format(program_estimated_runtime / 60),
+        "Die erwartete Laufzeit beträgt {:.0f} minuten".format(program_estimated_runtime / 60),
         "dishwasher_action_start.png"
     )
 
