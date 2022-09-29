@@ -105,7 +105,7 @@ def push_v2():
 
 def broadcast_notification_action_start(program_estimated_runtime):
     _notify_all_subscribers(
-        "Neues Programm gestartet...",
+        "Spülprogramm gestartet...",
         "Die erwartete Laufzeit beträgt {:.0f} minuten".format(program_estimated_runtime / 60),
         "dishwasher_action_start.png"
     )
