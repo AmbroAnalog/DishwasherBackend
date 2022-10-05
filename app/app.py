@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'TestKey'
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-socketio = SocketIO(app, cors_allowed_origins='*')
+socketio = SocketIO(app, cors_allowed_origins='*', path='/live/socket.io')
 socketio_clients = 0
 
 app.register_blueprint(insert_bp, url_prefix='/insert')

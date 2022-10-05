@@ -26,6 +26,7 @@ def insert_run_state():
             db.replace_one({"_id": obj['_id']}, req_data)
         update_last_alive(req_data)
         current_app.config['socketio'].emit('device-data', req_data)
+        # print('connected SocketIO clients = {}'.format(current_app.config['connected_clients']))
         record_temperature_series(req_data)
     else:
         current_app.logger.error("ERROR in request body")

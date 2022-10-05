@@ -58,12 +58,9 @@ def subscription():
             headers={"Access-Control-Allow-Origin": "*"}, content_type="application/json")
 
     subscription_token = request.get_json("subscription_token")
-
     add_new_subscription(subscription_token)
 
-    print("Database Size:", len(USER_SUBSCRIPTION_STORAGE))
-    for sub in USER_SUBSCRIPTION_STORAGE:
-        print(sub)
+    # print("Database Size:", len(USER_SUBSCRIPTION_STORAGE))
 
     return Response(status=201, mimetype="application/json")
 
