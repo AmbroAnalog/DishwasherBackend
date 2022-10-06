@@ -1,6 +1,7 @@
 import yaml
 import os
 import pymongo
+import logging
 from flask import Flask
 #from flask_socketio import SocketIO, emit, send
 from flask_socketio import SocketIO
@@ -61,13 +62,13 @@ def load_config():
 def connect_handler():
     app.config['connected_clients'] += 1
     socketio.emit('my response', {'data': 'Connected'})
-    print('client number {} connected'.format(app.config['connected_clients']))
+    app.logger.info('client number {} connected'.format(app.config['connected_clients']))
 
 
 @socketio.on('disconnect')
 def disconnect_handler():
     app.config['connected_clients'] -= 1
-    print('client disconnect...')
+    app.logger.info('client disconnect...')
 
 
 load_config()
@@ -75,5 +76,10 @@ app.config['connected_clients'] = 0
 app.config['socketio'] = socketio
 
 if __name__ == '__main__':
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
+    
     socketio.run(app, debug=True)
+    
 

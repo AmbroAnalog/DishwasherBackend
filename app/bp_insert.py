@@ -20,7 +20,6 @@ def insert_run_state():
             # insert a new entry --> raise notification
             broadcast_notification_action_start(req_data['program_estimated_runtime'])
         else:
-            print('compare {} to {}'.format(obj['program_time_end'], req_data['program_time_end']))
             if obj['program_time_end'] is None and req_data['program_time_end'] is not None:
                 # complete one program run --> raise notification
                 broadcast_notification_action_finish(req_data['program_runtime'])

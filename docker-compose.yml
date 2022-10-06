@@ -4,6 +4,6 @@ services:
         container_name: dishwasher-backend
         build: .
         image: dishwasher-backend-image
-        command: gunicorn --bind 0.0.0.0:80 --chdir app app:app --worker-class eventlet --debug --log-file /tmp/test.log --log-level debug
+        command: gunicorn --bind 0.0.0.0:80 --chdir app app:app --worker-class eventlet --log-level warning
         ports:
           - "5000:80"
