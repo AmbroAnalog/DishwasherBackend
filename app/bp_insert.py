@@ -20,6 +20,7 @@ def insert_run_state():
             # insert a new entry --> raise notification
             broadcast_notification_action_start(req_data['program_estimated_runtime'])
         else:
+            print('compare {} to {}'.format(obj['program_time_end'], req_data['program_time_end']))
             if obj['program_time_end'] is None and req_data['program_time_end'] is not None:
                 # complete one program run --> raise notification
                 broadcast_notification_action_finish(req_data['program_runtime'])
@@ -27,7 +28,10 @@ def insert_run_state():
         update_last_alive(req_data)
         current_app.config['socketio'].emit('device-data', req_data)
         # print('connected SocketIO clients = {}'.format(current_app.config['connected_clients']))
-        record_temperature_series(req_data)
+        try:
+            record_temperature_series(req_data)
+        except TypeError:
+            print("TypeError in record_temperature_series method")
     else:
         current_app.logger.error("ERROR in request body")
     return 'OK'
