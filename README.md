@@ -1,7 +1,8 @@
 # DishwasherBackend
 Backend RESTful API application for the smart dishwasher project. API implemented in [Flask](https://github.com/pallets/flask) micro framework  with [SocketIO](https://github.com/socketio) functionalities.
 
-:diamonds: In conjunction with projects [DishwasherOS](https://github.com/AmbroAnalog/DishwasherOS) and [DishwasherFrontend](https://github.com/AmbroAnalog/DishwasherFrontend)
+> :sparkles: This is a component of the `SmartDishwasher` project. **FOR A PROJECT OVERVIEW PLEASE VISIT THE [SmartDishwaser](https://github.com/AmbroAnalog/SmartDishwasher) REPOSITORY.** 
+> :arrow_right: In conjunction with projects [DishwasherOS](https://github.com/AmbroAnalog/DishwasherOS) and [DishwasherFrontend](https://github.com/AmbroAnalog/DishwasherFrontend)
 
 ## Mode of operation
 ```
